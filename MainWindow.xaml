@@ -1,0 +1,76 @@
+﻿<Window x:Class="MediaPlayer.MainWindow"
+        
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MediaPlayer"
+        mc:Ignorable="d"
+        Title="Media Player" Height="450" Width="800" Loaded="Window_Loaded" x:Name="mainWindow">
+    <Window.Resources>
+        <local:SecondsTimeSpanConvrter x:Key="secondsTimeSpanConverter" />
+        <local:TwoValuesToPercent x:Key="twoValuesToPercent" />
+    </Window.Resources>
+
+    <DockPanel>
+        <StatusBar DockPanel.Dock="Bottom" Width="{Binding ElementName=mainWindow, Path=Width}">
+            <StatusBarItem HorizontalAlignment="Center">
+                <Grid>
+                    <ProgressBar Width="300" Height="14" Value="{Binding ElementName=TrackTime, Path=Value}" Maximum="{Binding ElementName=TrackTime, Path=Maximum}" />
+                    <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock.Text>
+                            <MultiBinding 
+                                Converter="{StaticResource twoValuesToPercent}"
+                                StringFormat="{}{0:p}">
+                                <Binding ElementName="TrackTime" Path="Value"></Binding>
+                                <Binding ElementName="TrackTime" Path="Maximum"></Binding>
+                            </MultiBinding>
+                        </TextBlock.Text>
+                        </TextBlock>
+                </Grid>
+            </StatusBarItem>
+        </StatusBar>
+        <!-- create bottom panel with player controls  -->
+        <WrapPanel DockPanel.Dock="Bottom" HorizontalAlignment="Center">
+            <Button x:Name="AddBtn" Click="AddBtn_Click">Open File</Button>
+            <Button x:Name="PlayBtn" Click="PlayBtn_Click" >Play</Button>
+            <Button x:Name="PauseBtn" Click="PauseBtn_Click">Pause</Button>
+            <Button x:Name="StopBtn" Click="StopBtn_Click">Stop</Button>
+
+            <!-- Volume control -->
+            <Label>Volume:</Label>
+            <Slider Width="50" Value="{Binding ElementName=MediaScreen, Path=Volume}" Maximum="1"></Slider>
+
+            <!-- Track progress-->
+            <Label>Time:</Label>
+            <Slider 
+                Width="300" 
+                x:Name="TrackTime" 
+                ValueChanged="TrackTime_ValueChanged"
+                Thumb.DragStarted="TrackTime_DragStarted" 
+                Thumb.DragCompleted="TrackTime_DragCompleted"
+                ></Slider>
+
+            <!-- Binding current track time and show it in label-->
+            <Label x:Name="CurrentTrackTime" Content="{Binding ElementName=TrackTime, Path=Value, Converter={StaticResource secondsTimeSpanConverter}}"></Label>
+
+            <Label x:Name="TotalTrackTime"></Label>
+
+        </WrapPanel>
+
+        <!-- create media content with default sound volume and manual load option-->
+        <MediaElement 
+            x:Name="MediaScreen"
+            Source="" 
+            Volume="0.01" 
+            LoadedBehavior="Manual"
+            MediaFailed="MediaScreen_MediaFailed"
+            MediaOpened="MediaScreen_MediaOpened"
+            
+            />
+
+
+
+
+    </DockPanel>
+</Window>
